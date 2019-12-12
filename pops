@@ -29,8 +29,12 @@ logs() {
     docker-compose logs jenkins
 }
 
+open-web() {
+    open http://$(docker-machine ip dev | awk '{print $1}'):8080
+}
+
 download_cli() {
-    wget http://localhost:8080/jnlpJars/jenkins-cli.jar
+    wget http://$(docker-machine ip dev | awk '{print $1}'):8080/jnlpJars/jenkins-cli.jar
 }
 
 restart() {
