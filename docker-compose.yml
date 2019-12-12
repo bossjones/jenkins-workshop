@@ -3,6 +3,8 @@ services:
   jenkins:
     build: .
     image: jenkins-local:latest
+    environment:
+      JAVA_OPTS: "-Djava.util.logging.config.file=/var/jenkins_home/log.properties"
     ports:
     - target: 8080
       published: 8080

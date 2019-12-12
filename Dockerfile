@@ -1,10 +1,21 @@
 FROM jenkins/jenkins:lts
 LABEL maintainer="Jarvis <jarvis@theblacktonystark.com>"
+COPY init.groovy.d/executors.groovy /usr/share/jenkins/ref/init.groovy.d/executors.groovy
+COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
+RUN echo 2.0 > /usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state
+
 ENV DEBIAN_FRONTEND noninteractive
 # we keep separate RUN (layer) for development
 USER root
 RUN apt-get -y update && \
-  apt-get -y install jq curl apt-transport-https ca-certificates gnupg2 software-properties-common
+  apt-get -y install python-minimal python-apt bash-completion curl git vim python3-venv python3-pip apt-transport-https ca-certificates curl software-properties-common ipset
+
+RUN apt-add-repository ppa:ansible/ansible -y && \
+  apt-get -Y update && \
+  apt-get install ansible bison build-essential cmake flex git libedit-dev \
+  libllvm6.0 llvm-6.0-dev libclang-6.0-dev python zlib1g-dev libelf-dev luajit luajit-5.1-dev gcc make ncurses-dev libssl-dev bc flex bison libelf-dev libdw-dev libaudit-dev libnewt-dev libslang2-dev -y
+
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
   add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
   apt-get -y update && \

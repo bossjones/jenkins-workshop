@@ -1,0 +1,119 @@
+#!/bin/bash
+VIRTUAL_WORKSPACE=$HOME/docker-volumes/v2
+build() {
+    # ./pops build
+    docker-compose build jenkins
+}
+up() {
+    mkdir -p $VIRTUAL_WORKSPACE/var/jenkins_home
+	docker-compose up -d jenkins
+}
+
+configure_logging(){
+cat > $VIRTUAL_WORKSPACE/var/jenkins_home/log.properties <<EOF
+handlers=java.util.logging.ConsoleHandler
+jenkins.level=FINEST
+java.util.logging.ConsoleHandler.level=FINEST
+EOF
+}
+
+logs() {
+    docker-compose logs jenkins
+}
+download_cli() {
+    wget http://localhost:8080/jnlpJars/jenkins-cli.jar
+}
+restart() {
+    docker-compose restart jenkins
+}
+reset_jenkins() {
+   	rm -rf ~/volumes/jenkins
+	mkdir -p ~/volumes/jenkins
+}
+stop() {
+    docker-compose stop jenkins
+}
+install_plugins() {
+  	java -jar jenkins-cli.jar install-plugin git workflow-aggregator github-pullrequest ws-cleanup ansible github github-oauth  github-branch-source simple-theme-plugin  ssh-credentials
+}
+root_cli() {
+	docker-compose exec -u root jenkins bash
+}
+get_pass() {
+    head -n 1 ~/docker-volumes/v2/var/jenkins_home/secrets/initialAdminPassword | tr -d '\n'
+}
+update_job() {
+    # Usage:
+    # ./pops update_job -p ./demo/ro.jenkinsfile -n hellojob
+    # Read input parameters
+    while getopts p:n: option
+    do
+    case "${option}"
+    in
+        p) path=${OPTARG};;
+        n) name=${OPTARG};;
+    esac
+    done
+    echo $path $name
+    content=$(cat $path)
+    eval "cat <<EOF
+$(<job.tpl.xml)
+EOF
+" 2> /dev/null | java -jar jenkins-cli.jar update-job $name
+}
+init_job() {
+    while getopts n: option
+    do
+    case "${option}"
+    in
+        n) name=${OPTARG};;
+    esac
+    done
+    java -jar jenkins-cli.jar build $name -p INIT_JOB=true;
+}
+create_user_secrets() {
+    # Usage
+    # ./pops create_user_secrets -s "uw2artifactory SKYLINE_ADMIN_PASSWORD SLACK_TOKEN"
+    while getopts ":s:" option; do
+    case "${option}" in
+        s) secrets="${OPTARG}" ;;
+    esac
+    done
+    declare -a StringArray=(${secrets[@]})
+    for val in ${StringArray[@]}; do
+        cat <<EOF | java -jar jenkins-cli.jar create-credentials-by-xml system::system::jenkins _
+  <com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl plugin="credentials@2.2.1">
+    <scope>GLOBAL</scope>
+    <id>$val</id>
+    <description>dummy for $val</description>
+    <username>user</username>
+    <password>pass</password>
+  </com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>
+EOF
+    done
+}
+create_ssh_secrets() {
+    # NOT WORKING
+    # Usage
+    # ./pops create_ssh_secrets -s "hellosecret"
+    while getopts ":s:" option; do
+    case "${option}" in
+        s) secrets="${OPTARG}" ;;
+    esac
+    done
+    declare -a StringArray=(${secrets[@]})
+    for val in ${StringArray[@]}; do
+        cat <<EOF | java -jar jenkins-cli.jar create-credentials-by-xml system::system::jenkins _
+<com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey plugin="ssh-credentials@1.17.3">
+  <scope>GLOBAL</scope>
+  <id>$val</id>
+  <description>secret for $val</description>
+  <username>admin</username>
+  <privateKeySource class="com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey$DirectEntryPrivateKeySource">
+    <privateKey></privateKey>
+  </privateKeySource>
+</com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey>
+EOF
+    done
+}
+"$@"
