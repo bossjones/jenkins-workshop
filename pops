@@ -1,7 +1,13 @@
 #!/bin/bash
 VIRTUAL_WORKSPACE=$HOME/docker-volumes/v2
+
+fix_kernel() {
+    sudo sysctl -w net.ipv4.ip_forward=1
+}
+
 build() {
     # ./pops build
+    fix_kernel
     docker-compose build jenkins
 }
 up() {
