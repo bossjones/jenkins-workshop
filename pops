@@ -9,7 +9,7 @@ up() {
 	docker-compose up -d jenkins
 }
 
-configure_logging(){
+configure_logging() {
 cat > $VIRTUAL_WORKSPACE/var/jenkins_home/log.properties <<EOF
 handlers=java.util.logging.ConsoleHandler
 jenkins.level=FINEST
