@@ -5,16 +5,6 @@ fix_kernel() {
     sudo sysctl -w net.ipv4.ip_forward=1
 }
 
-build() {
-    # ./pops build
-    fix_kernel
-    docker-compose build jenkins
-}
-up() {
-    mkdir -p $VIRTUAL_WORKSPACE/var/jenkins_home
-	docker-compose up -d jenkins
-}
-
 configure_logging() {
 cat > $VIRTUAL_WORKSPACE/var/jenkins_home/log.properties <<EOF
 handlers=java.util.logging.ConsoleHandler
@@ -23,31 +13,51 @@ java.util.logging.ConsoleHandler.level=FINEST
 EOF
 }
 
+
+build() {
+    # ./pops build
+    fix_kernel
+    docker-compose build jenkins
+}
+up() {
+    mkdir -p $VIRTUAL_WORKSPACE/var/jenkins_home
+    configure_logging
+	docker-compose up -d jenkins
+}
+
 logs() {
     docker-compose logs jenkins
 }
+
 download_cli() {
     wget http://localhost:8080/jnlpJars/jenkins-cli.jar
 }
+
 restart() {
     docker-compose restart jenkins
 }
+
 reset_jenkins() {
    	rm -rf ~/volumes/jenkins
 	mkdir -p ~/volumes/jenkins
 }
+
 stop() {
     docker-compose stop jenkins
 }
+
 install_plugins() {
-  	java -jar jenkins-cli.jar install-plugin git workflow-aggregator github-pullrequest ws-cleanup ansible github github-oauth  github-branch-source simple-theme-plugin  ssh-credentials
+    java -jar jenkins-cli.jar install-plugin git workflow-aggregator github-pullrequest ws-cleanup ansible github github-oauth  github-branch-source simple-theme-plugin  ssh-credentials
 }
+
 root_cli() {
 	docker-compose exec -u root jenkins bash
 }
+
 get_pass() {
     head -n 1 ~/docker-volumes/v2/var/jenkins_home/secrets/initialAdminPassword | tr -d '\n'
 }
+
 update_job() {
     # Usage:
     # ./pops update_job -p ./demo/ro.jenkinsfile -n hellojob
