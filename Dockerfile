@@ -17,7 +17,7 @@ RUN apt-get -y update && \
 #   libllvm6.0 llvm-6.0-dev libclang-6.0-dev python zlib1g-dev libelf-dev luajit luajit-5.1-dev gcc make ncurses-dev libssl-dev bc flex bison libelf-dev libdw-dev libaudit-dev libnewt-dev libslang2-dev
 RUN apt-get -y update && \
   apt-get install -y bison build-essential cmake flex git libedit-dev \
-  libllvm6.0 llvm-6.0-dev libclang-6.0-dev python zlib1g-dev libelf-dev luajit luajit-5.1-dev gcc make ncurses-dev libssl-dev bc flex bison libelf-dev libdw-dev libaudit-dev libnewt-dev libslang2-dev && \
+  python zlib1g-dev libelf-dev luajit luajit-5.1-dev gcc make ncurses-dev libssl-dev bc bison libelf-dev libdw-dev libaudit-dev libnewt-dev libslang2-dev && \
   pip3 install -U pip wheel && \
   pip3 install ansible
 
