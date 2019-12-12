@@ -16,7 +16,7 @@ EOF
 
 build() {
     # ./pops build
-    fix_kernel
+    # fix_kernel
     docker-compose build jenkins
 }
 up() {

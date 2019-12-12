@@ -222,3 +222,63 @@ Bats can be easily installed with `brew install bats` on OS X
 # Questions?
 
 Jump on irc.freenode.net and the #jenkins room. Ask!
+
+
+-----
+
+# Jenkins Development Environment
+
+## Todo
+- add the label "promote-image"
+
+## Instalation
+```
+./pops build
+./pops up
+
+open http://localhost:8080
+# user: admin
+# password: run `./pops get_pass` in cmd line
+
+# DON'T install any plugins (click the X on the right of 'Getting Started')
+# click on 'Start using Jenkins' (you might get a blank page)
+
+./pops restart
+# will download the cli in your current folder
+./pops  download-cli
+
+# export these values for the jenkins-cli
+export JENKINS_URL=http://localhost:8080 JENKINS_USER_ID=admin JENKINS_API_TOKEN=$(./pops get_pass)
+
+# jenkins-cli help
+# java -jar jenkins-cli.jar help
+
+./pops install-plugins
+./pops restart
+
+# manually add the "promote-image" label
+open http://localhost:8080/computer/(master)/configure
+
+# create job
+cat job.tpl.xml | java -jar jenkins-cli.jar create-job hellojob
+
+# update job
+./pops update_job -p ./demo/ro.jenkinsfile -n hellojob
+
+# init job (initialize the parameters)
+./pops init_job -n hellojob
+
+./pops create_user_secrets -s "uw2artifactory <ARGS>"
+
+# Because the hellojob is setup with inline Groovy code there is no download of a Jenkins file from a remote repo
+# To make the scripts files available for the Groovy code, you need to manually copy the project inside the Jenkins home folder (/var/jenkins_home)
+VIRTUAL_WORKSPACE=$HOME/docker-volumes/v2
+cp /path/to/pipeline $VIRTUAL_WORKSPACE/var/jenkins_home/
+
+# run job
+java -jar jenkins-cli.jar build hellojob \
+    -p RUN_STAGES="Download ultron config" \
+    -p SKYLINE_GIT_REPO="github.com/bossjones/jenkins-workshop" \
+    -p VIRTUAL_WORKSPACE="$VIRTUAL_WORKSPACE" \
+    -p SCRIPTS_PATH="/var/jenkins_home/pipeline/scripts"
+**
