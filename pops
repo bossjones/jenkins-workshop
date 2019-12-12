@@ -33,7 +33,7 @@ open-web() {
     open http://$(docker-machine ip dev | awk '{print $1}'):8080
 }
 
-download_cli() {
+download-cli() {
     wget http://$(docker-machine ip dev | awk '{print $1}'):8080/jnlpJars/jenkins-cli.jar
 }
 
