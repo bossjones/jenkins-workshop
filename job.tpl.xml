@@ -1,0 +1,32 @@
+<?xml version="1.1" encoding="UTF-8" ?>
+<flow-definition plugin="workflow-job@2.35">
+    <actions>
+        <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@1.3.9" />
+        <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@1.3.9">
+            <jobProperties />
+            <triggers />
+            <parameters>
+            </parameters>
+            <options />
+        </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+    </actions>
+    <description />
+    <keepDependencies>false</keepDependencies>
+    <properties>
+        <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+                <hudson.model.BooleanParameterDefinition>
+                    <name>INIT_JOB</name>
+                    <description>Initiate the Job after the list of parameters inside the Jenkinsfile has changed. When this is true only the &quot;init_job&quot; stage will run and the pipeline will end with a failure</description>
+                    <defaultValue>false</defaultValue>
+                </hudson.model.BooleanParameterDefinition>
+            </parameterDefinitions>
+        </hudson.model.ParametersDefinitionProperty>
+    </properties>
+    <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.74">
+        <script><![CDATA[${content}]]></script>
+        <sandbox>true</sandbox>
+    </definition>
+    <triggers />
+    <disabled>false</disabled>
+</flow-definition>

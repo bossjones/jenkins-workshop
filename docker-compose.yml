@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  jenkins:
+    build: .
+    image: jenkins-local:latest
+    ports:
+    - target: 8080
+      published: 8080
+      protocol: tcp
+      mode: host
+    # port 8080 is for the UI
+    - "50000:50000"
+    # port 50000 is used to communicate between master and slaves?
+    - target: 50022
+      published: 50022
+      protocol: tcp
+      mode: host
+    # port 50022 is used for ssh
+    volumes:
+      - type: bind
+        source: "~/docker-volumes/v2/var/jenkins_home"
+        target: "/var/jenkins_home"
+      - type: bind
+        source: "/var/run/docker.sock"
+        target: "/var/run/docker.sock"
+        # we mount the local Docker socket inside the container so it gains Docker capabilities
