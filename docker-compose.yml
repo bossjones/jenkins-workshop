@@ -4,7 +4,9 @@ services:
     build: .
     image: jenkins-local:latest
     environment:
-      JAVA_OPTS: "-Djava.util.logging.config.file=/var/jenkins_home/log.properties"
+      # SOURCE: Make JVM respect CPU and RAM limits
+      # SOURCE: https://hub.docker.com/_/openjdk
+      JAVA_OPTS: "-Djava.util.logging.config.file=/var/jenkins_home/log.properties -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
     ports:
     - target: 8080
       published: 8080
