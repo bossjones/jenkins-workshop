@@ -12,9 +12,9 @@ RUN apt-get -y update && \
   apt-get -y install python-minimal python-apt bash-completion curl git vim python3-venv python3-pip apt-transport-https ca-certificates curl software-properties-common ipset
 
 RUN apt-add-repository ppa:ansible/ansible -y && \
-  apt-get -Y update && \
-  apt-get install ansible bison build-essential cmake flex git libedit-dev \
-  libllvm6.0 llvm-6.0-dev libclang-6.0-dev python zlib1g-dev libelf-dev luajit luajit-5.1-dev gcc make ncurses-dev libssl-dev bc flex bison libelf-dev libdw-dev libaudit-dev libnewt-dev libslang2-dev -y
+  apt-get -y update && \
+  apt-get install -y ansible bison build-essential cmake flex git libedit-dev \
+  libllvm6.0 llvm-6.0-dev libclang-6.0-dev python zlib1g-dev libelf-dev luajit luajit-5.1-dev gcc make ncurses-dev libssl-dev bc flex bison libelf-dev libdw-dev libaudit-dev libnewt-dev libslang2-dev
 
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
   add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
